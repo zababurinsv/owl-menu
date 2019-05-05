@@ -4,7 +4,8 @@
   "license": "MIT",
   "author": "Gil Fink",
   "scripts": {
-    "type script gulp": "gulp && cd docs && serve && cd ..",
+    "type  gulp": "gulp ",
+    "type script gulp-serve": "gulp && cd docs && serve && cd ..",
     "type script serve": "cd docs && serve && cd ..",
     "kill all process": "killall -9 node"
   },
