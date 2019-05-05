@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "system",
+    "noImplicitAny": false,
+    "target": "es2018",
+    "sourceMap": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "lib": ["es2018", "dom"]
+  },
+  "files": [
+    "./src/html/components/owl-menu/owl-menu.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
