@@ -406,15 +406,15 @@ customElements.define('owl-menu',
             obj['parent'] = obj['this'].getAttribute('parent')
           }
           if (!obj['this'].hasAttribute('preset')) {
-            obj['path-template'] = `/${obj['component']}.html`
+            obj['path-template'] = `./${obj['component']}.html`
             obj['verify']['preset'] = false
           } else {
             if (obj['this'].getAttribute('preset').length === 0) {
-              obj['path-template'] = `/${obj['parent']}.html`
+              obj['path-template'] = `./${obj['parent']}.html`
               obj['preset'] = `default`
               obj['verify']['preset'] = true
             } else {
-              obj['path-template'] = `/${obj['component']}-${obj['this'].getAttribute('preset')}.html`
+              obj['path-template'] = `./${obj['component']}-${obj['this'].getAttribute('preset')}.html`
               obj['preset'] = `${obj['this'].getAttribute('preset')}`
               obj['verify']['preset'] = true
             }
@@ -471,7 +471,7 @@ customElements.define('owl-menu',
 
       function getSliderTemplate (obj) {
         return new Promise(function (resolve, reject) {
-          fetch(`/${obj['slot']}.html`)
+          fetch(`./${obj['slot']}.html`)
             .then(function (response) {
               if (response.ok) {
                 return response.text()
@@ -541,7 +541,7 @@ customElements.define('owl-menu',
 
       function external (obj) {
         return new Promise(function (resolve, reject) {
-          obj['path-external'] = `/${obj['component']}-external.html`
+          obj['path-external'] = `./${obj['component']}-external.html`
           fetch(obj['path-external'])
             .then(function (response) {
               if (response.ok === false) {
