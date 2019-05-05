@@ -6,7 +6,104 @@
 </head>
 <body>
 <template>
-    <div>flower-navigation</div>
+
+    <div class="wrapper">
+        <br/>
+        <h5 style="margin: 10px 0 10px 0;">Конвертер</h5>
+        <form id="user1-grid-filter" class="form">
+            <input style="width: 200px; display: inline-block;" value="" name="user" placeholder="ID участника / Фамилия / Логин" type="text">
+        </form>
+        <div class="widget" style="margin-top: 15px;">
+            class widget
+            <div>
+                <table id="user1-grid" width="100%"></table>
+                <div id="user1-grid-pager"></div>
+                <div id="user1-dialog" style="display: none"></div>
+                <form id="user1-form">
+                    <input type="hidden" name="id" />
+                    <div class="widget" style="margin: 0">
+                        <ul class="tabs">
+                            <li><a href="#user1-tab1">Основное</a></li>
+                            <li><a href="#user1-tab2">Почтовый адрес</a></li>
+                        </ul>
+                        <div class="tab_container">
+                            <div id="user1-tab1" class="tab_content">
+                                <table width="100%">
+                                    <tr>
+                                        <td>ID пользователя</td>
+                                        <td>Имя пользователя</td>
+                                        <td>E-mail</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-right: 15px; width: 33%"><input type="text" name="user"></td>
+                                        <td style="padding-right: 15px; width: 33%"><input type="text" name="user_username" style="background: #f8f8f8;" readonly></td>
+                                        <td><input type="text" name="user_email" style="background: #f8f8f8;" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Фамилия</td>
+                                        <td>Имя</td>
+                                        <td>Отчество</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-right: 15px;"><input type="text" name="fio1"></td>
+                                        <td style="padding-right: 15px;"><input type="text" name="fio2"></td>
+                                        <td><input type="text" name="fio3"></td>
+                                    </tr>
+                                </table>
+
+
+                                ФИО родителя (законного представителя):<br/>
+                                <input type="text" name="fio_parent">
+
+                                Школа<br/>
+                                <textarea name="school"></textarea>
+
+                                <table width="100%">
+                                    <tr>
+                                        <td style="padding-right: 15px;">
+                                            Класс<br/>
+                                            <input type="text" name="class">
+                                        </td>
+                                        <td style="padding-right: 15px;">
+                                            Мобильный телефон<br/>
+                                            <input type="text" name="phone">
+                                        </td>
+                                        <td>
+                                            Дополнительный телефон<br/>
+                                            <input type="text" name="phone_ext">
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <table>
+                                    <tr>
+                                        <td style="padding-right: 15px;">
+                                            Сертификат<br/>
+                                            <input type="text" name="certificate">
+                                        </td>
+                                        <td style="padding-right: 15px;">
+                                            Статус
+                                            <select name="status" style="width: 185px;">
+                                                {foreach $app->params['sovteach']['participant']['status'][1] as $key => $name}
+                                                <option value="{$key}">{$name|escape:'html'}</option>
+                                                {/foreach}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <br/>
+                                            <a class="button basic" style="margin-top: 10px;" onclick="if(confirm('Вы действительно хотите отправить письмо и sms?')) { userActMessages(1, this); return false;} else { return false; }">
+                                                <span>Отправить письмо и sms об активации</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </template>
 </body>
 </html>

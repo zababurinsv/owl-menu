@@ -4,8 +4,8 @@
   "license": "MIT",
   "author": "Gil Fink",
   "scripts": {
-    "type  gulp": "gulp ",
-    "type script gulp-serve": "gulp && cd docs && serve && cd ..",
+    "type  gulp dev": "gulp dev",
+    "type script gulp-dev-serve": "gulp dev",
     "type script serve": "cd docs && serve && cd ..",
     "kill all process": "killall -9 node"
   },
@@ -17,6 +17,7 @@
     "del": "^4.1.1",
     "gulp": "^4.0.0",
     "gulp-autoprefixer": "^6.1.0",
+    "gulp-connect": "^5.7.0",
     "gulp-debug": "^4.0.0",
     "gulp-if": "latest",
     "gulp-inject": "^5.0.2",

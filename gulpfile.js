@@ -13,6 +13,7 @@ var inject = require('gulp-inject');
 var rename = require("gulp-rename");
 var replace = require('gulp-string-replace');
 var fs = require('fs');
+connect = require('gulp-connect');
 
 const isDevelopement = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 let obj = {}
@@ -30,6 +31,16 @@ obj['component'] = 'owl-menu'
 //         .pipe(tsProject())
 //         .js.pipe(gulp.dest("docs"));
 // });
+
+gulp.task('connect:component', function () {
+    connect.server({
+        name: 'component',
+        root: ['docs'],
+        port: 8000,
+        livereload: true
+    });
+});
+
 gulp.task('rename:dir', function(done) {
     if (fs.existsSync(obj['path']['path-old'])) {
         fs.rename(obj['path']['path-old'], obj['path']['path-new'], function (err) {
@@ -116,4 +127,14 @@ gulp.task('copy:html-component', function () {
     return  gulp.src('./src/html/components/owl-menu/owl-menu.html')
         .pipe(gulp.dest('./docs/'));
 });
+
+
 gulp.task('default', gulp.series('clean','rename:dir', gulp.parallel('styles:light', 'styles:shadow','copy:html-component','copy:favicon',"html:index",'copy:CNAME', 'img:component','html:external','js:copy')));
+
+gulp.task('watch', function () {
+    gulp.watch('./src/html/components/owl-menu/shadow/**/*.*', gulp.series("styles:shadow"))
+    gulp.watch('./src/html/components/owl-menu/light/**/*.*' , gulp.series("styles:light"))
+    gulp.watch('./src/html/components/owl-menu/owl-menu.html', gulp.series('copy:html-component'))
+});
+
+gulp.task('dev', gulp.series('default', 'connect:component','watch'))
