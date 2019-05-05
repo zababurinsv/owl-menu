@@ -42,12 +42,12 @@ customElements.define('owl-menu',
             let gulp = 'git'
             if(gulp === 'git'){
               if(obj['state'][state] === 'shadow'){
-                obj[`path-style-${obj['state'][state]}`] = `@import '/${obj['component']}-custom.css';`
+                obj[`path-style-${obj['state'][state]}`] = `@import './${obj['component']}-custom.css';`
               }else{
-                obj[`path-style-${obj['state'][state]}`] = `@import '/${obj['component']}.css';`
+                obj[`path-style-${obj['state'][state]}`] = `@import './${obj['component']}.css';`
               }
             }else{
-              obj[`path-style-${obj['state'][state]}`] = `@import '/${obj['component']}-custom.css'; @import '/${obj['component']}.css';`
+              obj[`path-style-${obj['state'][state]}`] = `@import './${obj['component']}-custom.css'; @import './${obj['component']}.css';`
 
             }
             switch (obj['state'][state]) {
