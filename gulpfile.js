@@ -17,12 +17,15 @@ let lambdaNow = require('./lambdaNow.js')
 let lambdaAWS = require('./lambdaAWS.js')
 const webpack = require('webpack-stream');
 inject = require('gulp-inject-string');
-
-
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const { rules, plugins, loaders } = require('webpack-atoms');
+var SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 // sw-precache-webpack-plugin configurations
 const SERVICE_WORKER_FILENAME = './service-worker.js'
-const SERVICE_WORKER_CACHEID = 'lain'
+const SERVICE_WORKER_CACHEID = 'owl'
 const SERVICE_WORKER_IGNORE_PATTERNS = [/dist\/.*\.html/]
 const SW_PRECACHE_CONFIG = {
     minify: false,
@@ -58,8 +61,8 @@ obj['dir'] = 'frontend-server'
 obj['ts'] = false
 obj['webpack'] = false
 obj['host'] = {}
-obj['host']['GitHub'] = true
-obj['host']['Firebase'] = false
+obj['host']['GitHub'] = false
+obj['host']['Firebase'] = true
 obj['host']['Now'] = false
 
 const isDevelopement = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -70,6 +73,7 @@ function callback(error, data) {
 }
 
 if(obj['host']['GitHub'] === false){
+
     if(obj['host']['Firebase'] === false){
 
 
@@ -80,6 +84,93 @@ if(obj['host']['GitHub'] === false){
                 console.log('нет ни одной сборки')
                 callback()
             })
+        }
+    }else{
+
+        gulp.task("clean:webpack", function () {
+            return del('./dist')
+        });
+
+        gulp.task('connect:server:webpack', function () {
+            connect.server({
+                name: 'webpack',
+                root: ['dist'],
+                port: 8002,
+                livereload: true
+            });
+        });
+        gulp.task('webpack', function() {
+            return gulp.src('./src/z.config.mjs')
+                .pipe(webpack({
+                    mode: 'production',
+                    cache: true,
+                    resolve: {
+                        extensions: ['.wasm', '.mjs', '.js', '.json', '.jsx']
+                    },
+                    output: {
+                        filename: '[name].bundle.mjs',
+                        chunkFilename: '[name].bundle.mjs',
+                        library: 'bundle',
+                    },
+                    module: {
+                        rules: [
+                            rules.js(),
+                            rules.images(),
+                            rules.css(),
+                        ]
+                    },
+                    optimization: {
+                        splitChunks: {
+                            chunks: 'all'
+                        },
+                        minimizer: [
+                            new UglifyJsPlugin({
+                                cache: true,
+                                parallel: true,
+                                uglifyOptions: {
+                                    output: {
+                                        comments: false
+                                    }
+                                }
+                            })
+                        ]
+                    },
+                    plugins: [
+                        plugins.loaderOptions(),
+                        new SWPrecacheWebpackPlugin(SW_PRECACHE_CONFIG),
+                        new CompressionPlugin(
+                            {
+                                test: /\.js/,
+                                include: /\/includes/,
+                                exclude: /\/excludes/,
+                                cache: true
+                            }
+                        ),
+                        new HtmlWebpackPlugin(HTML_WEBPACK_OPTIONS.main)
+                    ],
+
+                }))
+                .pipe(gulp.dest('dist/'));
+
+
+
+        });
+
+        if(obj['host']['Now'] === false){
+
+
+
+            gulp.task('default', gulp.series('clean:webpack', gulp.parallel('webpack')));
+
+            // gulp.task('watch', function () {
+                // gulp.watch('./src/html/components/owl-menu/shadow/**/*.*', gulp.series("styles:shadow"))
+                // gulp.watch('./src/html/components/owl-menu/light/**/*.*' , gulp.series("styles:light"))
+                // gulp.watch('./src/html/components/owl-menu/owl-menu.html', gulp.series('html:component'))
+            // });
+
+            gulp.task('dev', gulp.series('default', 'connect:server:webpack'))
+
+
         }
     }
 }else{

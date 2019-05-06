@@ -8,7 +8,7 @@ const path = require('path')
 const fs = require('fs')
 const CompressionPlugin = require('compression-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const { rules, plugins, loaders } = require('webpack-atoms')
+const { rules, plugins, loaders } = require('webpack-atoms');
 var ManifestPlugin = require('webpack-manifest-plugin')
 var WebpackPwaManifest = require('webpack-pwa-manifest')
 
@@ -93,6 +93,7 @@ module.exports = {
     ),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production')
-    })
+    }),
+    new HtmlWebpackPlugin(HTML_WEBPACK_OPTIONS.main)
   ]
 }
