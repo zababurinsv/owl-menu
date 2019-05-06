@@ -6,7 +6,6 @@
   "scripts": {
     "type  gulp dev": "gulp dev",
     "type script gulp-dev-serve": "gulp dev",
-    "type script serve": "cd docs && serve && cd ..",
     "kill all process": "killall -9 node"
   },
   "dependencies": {
@@ -14,6 +13,7 @@
     "serve": "latest"
   },
   "devDependencies": {
+    "compression-webpack-plugin": "^2.0.0",
     "del": "^4.1.1",
     "gulp": "^4.0.0",
     "gulp-autoprefixer": "^6.1.0",
@@ -21,6 +21,7 @@
     "gulp-debug": "^4.0.0",
     "gulp-if": "latest",
     "gulp-inject": "^5.0.2",
+    "gulp-load-plugins": "^1.5.0",
     "gulp-minify": "^3.1.0",
     "gulp-replace": "^1.0.0",
     "gulp-sass": "^4.0.2",
@@ -29,6 +30,9 @@
     "gulp-typescript": "^5.0.1",
     "gulp-uglify": "^3.0.2",
     "node-sass": "^4.12.0",
-    "typescript": "^3.4.5"
+    "robotstxt-webpack-plugin": "^5.0.0",
+    "sw-precache-webpack-plugin": "^0.11.5",
+    "typescript": "^3.4.5",
+    "webpack-stream": "^5.2.1"
   }
 }
