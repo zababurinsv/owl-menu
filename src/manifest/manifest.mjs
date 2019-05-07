@@ -28,7 +28,7 @@ object['varan-pictures'] = function (obj) {
     section.appendChild(main)
     section.appendChild(footer)
 
-    slot00.name = 'varan-menu'
+    slot00.name = 'owl-menu'
     slot01.name = 'varan-pictures'
     slotFooter.name = 'varan-footer'
 

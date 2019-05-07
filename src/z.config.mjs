@@ -1,4 +1,6 @@
 import manifest from './manifest/manifest.mjs'
+import isEmpty from './static/is-empty.mjs'
+
 function getListObject (id, type, obj, ...args) {
   return new Promise(function (resolve, reject) {
     if (id === `components`) {
@@ -57,7 +59,6 @@ function getListObject (id, type, obj, ...args) {
               verify = true
             }
           }
-          console.log()
           // console.assert(false, id, '~~~~~~~~~~~~~~~~', obj)
           if (slider === false) {
             const zSlider = document.createElement('script')
@@ -67,16 +68,12 @@ function getListObject (id, type, obj, ...args) {
             obj['this'].appendChild(zSlider)
           }
           if (verify === true) {
-            white[`${id}-script`] = document['createElement']('script')
-            white[`${id}-script`]['src'] = `/static/html/components/${id}/${id}.js`
-            white[`${id}-script`].setAttribute('async', '')
+            console.log('скрипт уже загружен')
+
           } else {
             const script = document.createElement('script')
-            if (obj['this'].hasAttribute('import') === false) {
-            } else {
-              script.type = 'module'
-            }
-            script.src = `/static/html/components/${id}/${id}.js`
+            script.type = 'module'
+            script.src = obj['property'].querySelector('script').src
             script.setAttribute('async', '')
             script.onload = resolve
             script.onerror = reject
@@ -158,7 +155,7 @@ function getListObject (id, type, obj, ...args) {
             })
         })
       }
-      function objectProperty (obj, ...args) {
+      function objectProperty (obj, param) {
         return new Promise(function (resolve, reject) {
           let black = []
           black[`this`] = obj
@@ -182,7 +179,7 @@ function getListObject (id, type, obj, ...args) {
             } else {
               black[`type`] = obj.getAttribute('type').split('-')
               black[`type-string`] = obj.getAttribute('type')
-
+              console.assert(false, black[`type`])
               for (let i = 0; i < black[`type`].length; i++) {
                 if (black[`type`][i].split(':').length > 1) {
                   for (let j = 0; j < black[`type`][i].split(':').length; j++) {
@@ -216,6 +213,7 @@ function getListObject (id, type, obj, ...args) {
               black[`verify`]['import'] = true
             }
           }
+          black[`property`] = param
           resolve(black)
         })
       }
@@ -270,43 +268,37 @@ function getListObject (id, type, obj, ...args) {
                 return response.text()
               }
             }).then(function (body) {
-              let parser = new DOMParser()
+            let param = {}
+            let parser = new DOMParser()
               let doc = parser.parseFromString(body, 'text/html')
               if (doc.querySelectorAll('section').length !== 1) {
                 let verify = false
-
-                  console.assert(false, doc.querySelectorAll('section'))
-                for (let key in doc.querySelectorAll('section')) {
-                  if (typeof (doc.querySelectorAll('section')[key]) === 'object') {
-                    if (!doc.querySelectorAll('section')[key].getAttribute('id')) {
-                      // console.log('должен быть атрибут id')
+                for(let key =0; key < doc.querySelectorAll('section').length; key++){
+                  if (!doc.querySelectorAll('section')[key].getAttribute('id')) {
+                  console.warn('secure у компонента должен быть id')
+                  }else{
+                    if (!obj.tagName.toLowerCase()) {
+                      console.warn('пришёл не понятный объект')
                     } else {
-                      if (!obj.tagName.toLowerCase()) {
-                        // console.log('у объекта нет id')
-                      } else {
-                        if (obj.tagName.toLowerCase() === doc.querySelectorAll('section')[key].getAttribute('id')) {
-                          verify = true
-                        } else {
+                      if (obj.tagName.toLowerCase() === doc.querySelectorAll('section')[key].getAttribute('id')) {
 
-                        }
+                        param = doc.querySelectorAll('section')[key]
+                        verify = true
+                      } else {
+
                       }
                     }
+
                   }
                 }
-                // console.assert(false, obj)
-
-                // function docObject (doc, id, ...args).then(()=>{
-                // })
-                // console.log()
                 if (verify === true) {
                   if (!obj.slot) {
-                    // console.log('slot не установлен компонент не может отображаться', obj)
                     console.log('slot устанавливается по tag', obj)
                     obj.slot = obj.tagName.toLowerCase()
                   }
-                  objectProperty(obj)
+
+                  objectProperty(obj, param)
                     .then((obj) => {
-                      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!222')
                       createScript(obj['this'].tagName.toLowerCase(), obj)
                         .then((obj) => { })
                       resolve(true)
