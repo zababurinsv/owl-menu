@@ -77,14 +77,9 @@ function callback(error, data) {
     console.log(data);
 }
 
-
-
-
 if(obj['host']['GitHub'] === false){
 
     if(obj['host']['Firebase'] === false){
-
-
 
 
         if(obj['host']['Now'] === false){
@@ -187,16 +182,13 @@ if(obj['host']['GitHub'] === false){
             return  gulp.src('./src/manifest/128x128.png')
                 .pipe(gulp.dest('./dist/'));
         });
-
         gulp.task('copy:192x192-webpack', function () {
             return  gulp.src('./src/manifest/192x192.png')
-                .pipe(gulp.dest('./docs/'));
+                .pipe(gulp.dest('./dist/'));
         });
-
-
         gulp.task('copy:512x512-webpack', function () {
             return  gulp.src('./src/manifest/512x512.png')
-                .pipe(gulp.dest('./docs/'));
+                .pipe(gulp.dest('./dist/'));
         });
         gulp.task('inject:manifest-webpack', function(){
             return  gulp.src('./src/index.html')
@@ -469,17 +461,16 @@ if(obj['host']['GitHub'] === false){
 
         gulp.task('copy:192x192-webpack', function () {
             return  gulp.src('./src/manifest/192x192.png')
-                .pipe(gulp.dest('./docs/'));
+                .pipe(gulp.dest('./dist/'));
+        });
+        gulp.task('copy:512x512-webpack', function () {
+            return  gulp.src('./src/manifest/192x192.png')
+                .pipe(gulp.dest('./dist/'));
         });
         gulp.task('inject:manifest-webpack', function(){
             return  gulp.src('./src/index.html')
                 .pipe(inject.before('<title', ' <link rel="manifest" href="./manifest.json">\n'))
                 .pipe(gulp.dest('./dist'));
-        });
-
-        gulp.task('copy:512x512-webpack', function () {
-            return  gulp.src('./src/manifest/512x512.png')
-                .pipe(gulp.dest('./docs/'));
         });
 
         // gulp.task("webpack-dev-server", function(callback) {
