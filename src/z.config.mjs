@@ -21,7 +21,6 @@ function getListObject (id, type, obj, ...args) {
   return window
 })()
   .then((win) => {
-    console.log(`~async~${win}~.then~`, win['$router']);
     (async (win) => {
       let white = []
       let id = 'this'
@@ -275,6 +274,8 @@ function getListObject (id, type, obj, ...args) {
               let doc = parser.parseFromString(body, 'text/html')
               if (doc.querySelectorAll('section').length !== 1) {
                 let verify = false
+
+                  console.assert(false, doc.querySelectorAll('section'))
                 for (let key in doc.querySelectorAll('section')) {
                   if (typeof (doc.querySelectorAll('section')[key]) === 'object') {
                     if (!doc.querySelectorAll('section')[key].getAttribute('id')) {
@@ -399,19 +400,19 @@ function getListObject (id, type, obj, ...args) {
               obj['manifest']['varan-pictures'](obj)
                 .then((obj) => {
                   let verify = false
-                  for (let i = 0; i < document['head'].querySelectorAll('script').length; i++) {
-                    if (document.querySelectorAll('script')[i].src.indexOf(`scoped.min.js`) !== -1) {
-                      verify = true
-                    }
-                  }
-                  if (verify === true) {
-                    console.log('модуль загружен')
-                  } else {
-                    white[`${id}-scoped`] = document.createElement('script')
-                    white[`${id}-scoped`]['src'] = `/static/distrib/scoped.min.js`
-                    white[`${id}-scoped`]['setAttribute']('async', '')
-                    document['head'].appendChild(white['this-scoped'])
-                  }
+                  // for (let i = 0; i < document['head'].querySelectorAll('script').length; i++) {
+                  //   if (document.querySelectorAll('script')[i].src.indexOf(`scoped.min.js`) !== -1) {
+                  //     verify = true
+                  //   }
+                  // }
+                  // if (verify === true) {
+                  //   console.log('модуль загружен')
+                  // } else {
+                  //   white[`${id}-scoped`] = document.createElement('script')
+                  //   white[`${id}-scoped`]['src'] = `/static/distrib/scoped.min.js`
+                  //   white[`${id}-scoped`]['setAttribute']('async', '')
+                  //   document['head'].appendChild(white['this-scoped'])
+                  // }
 
                   white[`${id}-style`] = document.createElement('style')
                   white[`${id}-style`]['textContent'] = `@import "/static/html/shadow.css" `

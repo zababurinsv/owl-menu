@@ -2,7 +2,7 @@
   "name":"Lanes",
   "short_name":"Lanes",
   "version": "1.2.0",
-  "start_url": "/index.html",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#d9fed8",
   "theme_color": "#cdfecc",
