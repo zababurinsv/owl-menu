@@ -15,6 +15,9 @@ var connect = require('gulp-connect');
 let lambdaNow = require('./task/taskflower.js')
 let lambdaAWS = require('./task/taskowl.js')
 let taskNowCopy = require('./task/replace:deploy:now.js')
+let shadowRoot = require('./task/shadowRoot.js')
+
+let replaceCssGitHub = require('./task/replace:css:GitHub.js')
 inject = require('gulp-inject-string');
 var uglify = require('gulp-uglify');
 var webpackConfig = require("./webpack.config.js");
@@ -28,6 +31,7 @@ const { rules, plugins, loaders } = require('webpack-atoms');
 const CompressionPlugin = require('compression-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+
 const WorkboxPlugin = require('workbox-webpack-plugin');
 var gls = require('gulp-live-server');
 livereload = require('gulp-livereload');
@@ -45,8 +49,9 @@ obj['ts'] = false
 obj['webpack'] = false
 obj['host'] = {}
 obj['host']['GitHub'] = true
-obj['host']['Firebase'] = true
+obj['host']['Firebase'] = false
 obj['host']['Now'] = true
+
 var PluginError = require('plugin-error');
 
 const isDevelopement = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -62,11 +67,14 @@ if(obj['host']['GitHub'] === false){
 
 
         if(obj['host']['Now'] === false){
+
+
             gulp.task('dev', function (callback) {
                 console.log('нет ни одной сборки')
                 callback()
             })
         }else{
+            /////////////////////////// only now start/////////////////////////////////
             gulp.task("clean:now", function () {
                 return del('./now')
             });
@@ -111,11 +119,11 @@ if(obj['host']['GitHub'] === false){
 
 
             });
-            // gulp.parallel('connect:now','watch')
             gulp.task('dev', gulp.series('default'))
 
             gulp.task('deploy:now', gulp.series('default', 'replace:js:now:deploy', 'deploy-start:now'))
 
+            /////////////////////////// only now start/////////////////////////////////
         }
     }else{
 
@@ -352,6 +360,7 @@ if(obj['host']['GitHub'] === false){
         }
     }
 }else{
+    //GitHub only start/////////////////////////////////////////////////////////////////////////////////
     gulp.task("clean", function () {
         return del('./docs')
     });
@@ -359,6 +368,15 @@ if(obj['host']['GitHub'] === false){
         return  gulp.src('./src/manifest/manifest.json')
             .pipe(gulp.dest('./docs/'));
     });
+    gulp.task('copy:static-light:GitHub', function () {
+        return  gulp.src('./src/static/light.css')
+            .pipe(gulp.dest('./docs'));
+    });
+    gulp.task('copy:static-shadow:GitHub', function () {
+        return  gulp.src('./src/static/shadow.css')
+            .pipe(gulp.dest('./docs'));
+    });
+
     gulp.task('copy:16x16', function () {
         return  gulp.src('./src/manifest/16x16.png')
             .pipe(gulp.dest('./docs/'));
@@ -432,11 +450,17 @@ if(obj['host']['GitHub'] === false){
         return  gulp.src('./src/webComponent.jpg')
             .pipe(gulp.dest('./docs/'));
     });
-    gulp.task('html:index', function () {
-        return  gulp.src('./src/index.html')
-            .pipe(lambdaNow({key:'value'}))
-            .pipe(gulp.dest('./docs/'));
+    gulp.task('replace:index:GitHub', function () {
+        return  gulp.src('./docs/index.html')
+            .pipe(replaceCssGitHub[functionHandler](obj,'gitHub', callback))
+            .pipe(gulp.dest('./docs'));
     });
+    gulp.task('shadowRoot:GitHub', function () {
+        return  gulp.src('./docs/index.html')
+            .pipe(shadowRoot[functionHandler](obj,'gitHub', callback))
+            .pipe(gulp.dest('./docs'));
+    });
+
     gulp.task('html:external', function () {
         return  gulp.src('./src/html/components/owl-menu/external/owl-menu-external.html')
             .pipe(gulp.dest('./docs/'));
@@ -446,17 +470,16 @@ if(obj['host']['GitHub'] === false){
             .pipe(gulp.dest('./docs/'));
     });
 
-    gulp.task('html:inject', function(){
-        return  gulp.src('./src/index.html')
+    gulp.task('inject:html:GitHub', function(){
+        return  gulp.src('./docs/index.html')
             .pipe(inject.before('</html', '<script src="./owl-menu.mjs"></script>\n'))
-            .pipe(gulp.dest('./docs'));
-    });
-    gulp.task('inject:manifest', function(){
-        return  gulp.src('./src/index.html')
             .pipe(inject.before('<title', ' <link rel="manifest" href="./manifest.json">\n'))
             .pipe(gulp.dest('./docs'));
     });
-
+    gulp.task('copy:index:GitHub', function () {
+        return  gulp.src('./src/index.html')
+            .pipe(gulp.dest('./docs'));
+    });
     gulp.task('connect-gitHub', function () {
         connect.server({
             name: 'GitHub',
@@ -466,20 +489,72 @@ if(obj['host']['GitHub'] === false){
         });
     });
     if(obj['host']['Firebase'] === false){
-
-
-
-
         if(obj['host']['Now'] === false){
-            gulp.task('default', gulp.series('clean', gulp.parallel('copy:CNAME','styles:light', 'styles:shadow','copy:favicon','html:component','html:inject','html:external','copy:image','copy:js','copy:manifest','copy:16x16','copy:48x48','copy:128x128','copy:192x192','copy:512x512','inject:manifest','connect-gitHub')));
+            gulp.task('default', gulp.series('clean', gulp.parallel('copy:CNAME','styles:light', 'styles:shadow','copy:favicon','html:component','html:external','copy:image','copy:js','copy:manifest','copy:16x16','copy:48x48','copy:128x128','copy:192x192','copy:512x512','copy:static-light:GitHub','copy:static-shadow:GitHub')));
 
-            gulp.task('watch', function () {
+            gulp.task('watch', function (callback) {
                 gulp.watch('./src/html/components/owl-menu/shadow/**/*.*', gulp.series("styles:shadow"))
                 gulp.watch('./src/html/components/owl-menu/light/**/*.*' , gulp.series("styles:light"))
                 gulp.watch('./src/html/components/owl-menu/owl-menu.html', gulp.series('html:component'))
+                gulp.watch('./src/index.html', gulp.series('copy:index:GitHub','replace:index:GitHub','inject:html:GitHub'))
+                callback()
+            });
+            gulp.task('dev', gulp.series('default','copy:index:GitHub', 'replace:index:GitHub', 'inject:html:GitHub', gulp.parallel( 'connect-gitHub', 'watch')))
+
+            //GitHub only end//////////////////////////////////////////////////////////////////////////
+        }else{
+            ///////////////////////////////////// git hub && now start //////////////////////////////
+            gulp.task("clean:now", function () {
+                return del('./now')
+            });
+            gulp.task('copy:now', function () {
+                return  gulp.src('./src/now/**/*.*')
+                    .pipe(gulp.dest('./now'));
+            });
+            gulp.task('copy:ignore:now', function () {
+                return  gulp.src('./src/now/.nowignore')
+                    .pipe(gulp.dest('./now'));
+            });
+            gulp.task('copy:favicon:now', function () {
+                return  gulp.src('./src/favicon.ico')
+                    .pipe(gulp.dest('./now/static'));
+            });
+            gulp.task('connect:now', function (cb) {
+                exec('cd now && nodemon --experimental-modules server.mjs && cd ..', function (err, stdout, stderr) {
+                    console.log(stdout);
+                    console.log(stderr);
+                    cb(err);
+                });
+            });
+            gulp.task('deploy-start:now', function (cb) {
+                exec('cd now && now && cd ..', function (err, stdout, stderr) {
+                    console.log(stdout);
+                    console.log(stderr);
+                    cb(err);
+                });
+            });
+            gulp.task('replace:js:now:deploy', function () {
+                return  gulp.src('./now/app.mjs')
+                    .pipe(taskNowCopy[functionHandler](obj,'gitHub', callback))
+                    .pipe(gulp.dest('./now'));
             });
 
-            gulp.task('dev', gulp.series('default', 'watch'))
+            gulp.task('watch', function (callback) {
+                gulp.watch('./src/now/**', gulp.series("copy:now"))
+                gulp.watch('./src/html/components/owl-menu/shadow/**/*.*', gulp.series("styles:shadow"))
+                gulp.watch('./src/html/components/owl-menu/light/**/*.*' , gulp.series("styles:light"))
+                gulp.watch('./src/html/components/owl-menu/owl-menu.html', gulp.series('html:component'))
+                gulp.watch('./src/index.html', gulp.series('copy:index:GitHub','replace:index:GitHub','inject:html:GitHub'))
+                callback()
+            });
+            gulp.task('default', gulp.series('clean','clean:now',  gulp.parallel('copy:favicon:now','copy:now','copy:ignore:now','copy:CNAME','styles:light', 'styles:shadow','copy:favicon','html:component','html:external','copy:image','copy:js','copy:manifest','copy:16x16','copy:48x48','copy:128x128','copy:192x192','copy:512x512','copy:static-light:GitHub','copy:static-shadow:GitHub')));
+
+            gulp.task('dev', gulp.series('default','copy:index:GitHub', 'replace:index:GitHub', 'inject:html:GitHub', gulp.parallel( 'connect-gitHub','connect:now', 'watch')))
+
+            gulp.task('deploy:now', gulp.series('default', 'replace:js:now:deploy', 'deploy-start:now'))
+
+
+            ///////////////////////////////////// git hub && now end //////////////////////////////
         }
     }else{
 
@@ -608,7 +683,7 @@ if(obj['host']['GitHub'] === false){
 
 
         if(obj['host']['Now'] === false){
-            gulp.task('default', gulp.series('clean','clean:webpack','webpack','copy:secure-webpack','copy:component-webpack',"styles:shadow-webpack","styles:light-webpack", gulp.parallel('copy:CNAME','styles:light',"styles:html-shadow-webpack","styles:html-light-webpack",'copy:favicon','html:component','html:inject','html:external','copy:image','copy:js','copy:manifest','copy:16x16','copy:48x48','copy:128x128','copy:192x192','copy:512x512','copy:manifest-webpack','copy:16x16-webpack','copy:48x48-webpack','copy:128x128-webpack','copy:192x192-webpack','copy:512x512-webpack','inject:manifest-webpack','inject:manifest-webpack',  "clean:scss-shadow-webpack", "clean:scss-light-webpack",'connect-webpack','connect-gitHub')));
+            gulp.task('default', gulp.series('clean','clean:webpack','webpack','copy:secure-webpack','copy:component-webpack',"styles:shadow-webpack","styles:light-webpack", gulp.parallel('copy:CNAME','styles:light',"styles:html-shadow-webpack","styles:html-light-webpack",'copy:favicon','html:component','inject:html:GitHub','html:external','copy:image','copy:js','copy:manifest','copy:16x16','copy:48x48','copy:128x128','copy:192x192','copy:512x512','copy:manifest-webpack','copy:16x16-webpack','copy:48x48-webpack','copy:128x128-webpack','copy:192x192-webpack','copy:512x512-webpack','inject:manifest-webpack','inject:manifest-webpack',  "clean:scss-shadow-webpack", "clean:scss-light-webpack",'connect-webpack','connect-gitHub')));
 
             gulp.task('watch', function () {
                 gulp.watch('./src/html/components/owl-menu/shadow/**/*.*', gulp.series("styles:shadow"))
@@ -654,7 +729,7 @@ if(obj['host']['GitHub'] === false){
                     .pipe(taskNowCopy[functionHandler](obj,'gitHub', callback))
                     .pipe(gulp.dest('./now'));
             });
-            gulp.task('default', gulp.series('clean','clean:webpack','webpack','copy:secure-webpack','copy:component-webpack',"styles:shadow-webpack","styles:light-webpack", gulp.parallel('copy:CNAME','styles:light',"styles:html-shadow-webpack","styles:html-light-webpack",'copy:favicon','html:component','html:inject','html:external','copy:image','copy:js','copy:manifest','copy:16x16','copy:48x48','copy:128x128','copy:192x192','copy:512x512','copy:manifest-webpack','copy:16x16-webpack','copy:48x48-webpack','copy:128x128-webpack','copy:192x192-webpack','copy:512x512-webpack','inject:manifest-webpack','inject:manifest-webpack',  "clean:scss-shadow-webpack", "clean:scss-light-webpack",'connect-webpack','connect-gitHub','copy:favicon:now','copy:now','copy:ingore:now')));
+            gulp.task('default', gulp.series('clean','clean:webpack','webpack','copy:secure-webpack','copy:component-webpack',"styles:shadow-webpack","styles:light-webpack", gulp.parallel('copy:CNAME','styles:light',"styles:html-shadow-webpack","styles:html-light-webpack",'copy:favicon','html:component','inject:html:GitHub','html:external','copy:image','copy:js','copy:manifest','copy:16x16','copy:48x48','copy:128x128','copy:192x192','copy:512x512','copy:manifest-webpack','copy:16x16-webpack','copy:48x48-webpack','copy:128x128-webpack','copy:192x192-webpack','copy:512x512-webpack','inject:manifest-webpack','inject:manifest-webpack',  "clean:scss-shadow-webpack", "clean:scss-light-webpack",'connect-webpack','connect-gitHub','copy:favicon:now','copy:now','copy:ingore:now')));
             gulp.task('watch', function (callback) {
 
                 gulp.watch('./src/now/**/*.*', gulp.series("copy:now"))
@@ -665,13 +740,9 @@ if(obj['host']['GitHub'] === false){
 
 
             });
-            // gulp.parallel('connect:now','watch')
-            gulp.task('dev', gulp.series('default'))
+            gulp.task('dev', gulp.series('default'),gulp.parallel( 'connect:now','connect-webpack', 'connect-gitHub'))
 
             gulp.task('deploy:now', gulp.series('default', 'replace:js:now:deploy', 'deploy-start:now'))
-
-
-
 
 
         }

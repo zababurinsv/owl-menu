@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="theme-color"  content="#d9fed8">
     <meta name=viewport content="width=device-width,minimum-scale=1,initial-scale=1,user-scalable=yes">
-    <title>flower-navigation</title>
+     <link rel="manifest" href="./manifest.json">
+<title>flower-navigation</title>
     <meta name="Description" content="creter by Zababurin Sergey">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="./static/html/light.css">
+    <link rel="stylesheet" href="./light.css">
     <meta property="vk:image"  content="webComponent.jpg" />
     <meta property="og:title" content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer in libero et mauris tempor egestas a quis justo."/>
     <meta property="og:description" content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer in libero et mauris tempor egestas a quis justo."/>
@@ -16,14 +17,19 @@
     <meta property="og:url" content= "https://zababurinsv.github.io/flower-navigation/" />
 </head>
 <body>
+<shadow-root>
+    <section><header></header><main><p><slot name="owl-menu"></slot></p><p><slot name="varan-pictures"></slot></p></main><footer><p><slot name="varan-footer"></slot></p></footer></section>
+</shadow-root>
 <noscript><p>Ваш браузер не поддерживает скрипты!</p></noscript>
 <owl-menu></owl-menu>
+<script>
+    let shadow = document.querySelectorAll('.shadowRoot')[0]
+    let parent =  shadow.parentNode
+    parent['attachShadow']({mode: 'open'})
+    let child = shadow.children[0]
+    console.log('~~~~~', parent.shadowRoot.appendChild(child))
+    parent.removeChild(shadow)
+</script>
 </body>
 <script src="./owl-menu.mjs"></script>
 </html>
-<script>
-    window.onload = function () {
-
-        console.log('~~~~onload~~~~~~', document)
-    }
-</script>

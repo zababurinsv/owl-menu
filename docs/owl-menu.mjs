@@ -677,7 +677,6 @@ customElements.define('owl-menu',
         async function modules (obj) {
 
 
-
         }
       }
     })
