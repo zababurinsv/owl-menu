@@ -1,5 +1,5 @@
-const chromium = require('chrome-aws-lambda');
-const puppeteer = require('puppeteer-core');
+import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer-core";
 
 let stack = [];
 stack.staticProperty = []
@@ -14,10 +14,12 @@ function convert (req){
         req.on('end', () => {
             resolve(body)
 
-        })}
+        })}else{
+
+            resolve(req)
+        }
     })
 }
-
 function json (str){
     return new Promise((resolve, reject) => {
         let obj,i,pt,keys,j,ev;
@@ -67,25 +69,12 @@ function json (str){
     })
 }
 
-module.exports = async (req, res)  => {
-        let body = {}
-        body = await convert(req)
-        body = await json(body)
+export default async (req, res)  => {
 
-        res.end(body);
-        // const query = await json(req);
-        // let result = null;
-        // let browser = null;
-        // browser = await puppeteer.launch({
-        //     args: chromium.args,
-        //     defaultViewport: chromium.defaultViewport,
-        //     executablePath: await chromium.executablePath,
-        //     headless: chromium.headless,
-        // });
-        // let page = await browser.newPage();
-        // await page.goto('https://index-2d7a4.firebaseapp.com/', {waitUntil: 'networkidle0'});
-        // result = await page.content();
-        // await browser.close();
-        // res.statusCode = 200;
-        // res.end(query);
+   console.log('~~~~~~~~~~~~~~~', req)
+        // let body = {}
+        // body = await convert(req)
+        // body = await json(body)
+        res.end(null,req);
+
 };

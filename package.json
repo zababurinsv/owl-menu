@@ -5,11 +5,16 @@
   "author": "Gil Fink",
   "scripts": {
     "type  gulp dev": "gulp dev",
-    "type script gulp-dev-serve": "gulp dev",
     "kill all process": "killall -9 node"
   },
   "dependencies": {
     "@waves/waves-api": "^1.5.1",
+    "body-parser": "latest",
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "express": "latest",
+    "express-fileupload": "^1.1.4",
+    "puppeteer": "^1.15.0",
     "tar": ">=4.4.2"
   },
   "devDependencies": {
@@ -25,6 +30,7 @@
     "gulp": "^4.0.0",
     "gulp-autoprefixer": "^6.1.0",
     "gulp-connect": "^5.7.0",
+    "gulp-connect-multi": "^1.0.8",
     "gulp-debug": "^4.0.0",
     "gulp-if": "latest",
     "gulp-inject": "^5.0.2",
@@ -36,6 +42,7 @@
     "gulp-string-replace": "^1.1.2",
     "gulp-typescript": "^5.0.1",
     "gulp-uglify": "^3.0.2",
+    "gulp-webserver": "^0.9.1",
     "html-webpack-plugin": "^3.2.0",
     "node-sass": "^4.12.0",
     "robotstxt-webpack-plugin": "^5.0.0",
@@ -46,6 +53,7 @@
     "webpack": "^4.30.0",
     "webpack-dev-server": "^3.3.1",
     "webpack-stream": "^5.2.1",
-    "workbox-webpack-plugin": "^4.3.1"
+    "workbox-webpack-plugin": "^4.3.1",
+    "connect-livereload": "latest"
   }
 }
