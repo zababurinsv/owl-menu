@@ -14,6 +14,7 @@ let fs = require('fs');
 var connect = require('gulp-connect');
 let lambdaNow = require('./task/taskflower.js')
 let lambdaAWS = require('./task/taskowl.js')
+let taskNowCopy = require('./task/replace:deploy:now.js')
 inject = require('gulp-inject-string');
 var uglify = require('gulp-uglify');
 var webpackConfig = require("./webpack.config.js");
@@ -29,7 +30,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin');
 var gls = require('gulp-live-server');
-
+livereload = require('gulp-livereload');
+var exec = require('child_process').exec;
 
 let functionHandler = 'handler'
 let obj = {}
@@ -42,8 +44,8 @@ obj['dir'] = 'frontend-server'
 obj['ts'] = false
 obj['webpack'] = false
 obj['host'] = {}
-obj['host']['GitHub'] = false
-obj['host']['Firebase'] = false
+obj['host']['GitHub'] = true
+obj['host']['Firebase'] = true
 obj['host']['Now'] = true
 var PluginError = require('plugin-error');
 
@@ -72,63 +74,47 @@ if(obj['host']['GitHub'] === false){
                 return  gulp.src('./src/now/**/*.*')
                     .pipe(gulp.dest('./now'));
             });
+            gulp.task('copy:ingore:now', function () {
+                return  gulp.src('./src/now/.nowignore')
+                    .pipe(gulp.dest('./now'));
+            });
             gulp.task('copy:favicon:now', function () {
                 return  gulp.src('./src/favicon.ico')
                     .pipe(gulp.dest('./now/static'));
             });
+            gulp.task('connect:now', function (cb) {
+                exec('cd now && nodemon --experimental-modules server.mjs && cd ..', function (err, stdout, stderr) {
+                    console.log(stdout);
+                    console.log(stderr);
+                    cb(err);
+                });
+            });
+            gulp.task('deploy-start:now', function (cb) {
+                exec('cd now && now && cd ..', function (err, stdout, stderr) {
+                    console.log(stdout);
+                    console.log(stderr);
+                    cb(err);
+                });
+            });
+            gulp.task('replace:js:now:deploy', function () {
+                return  gulp.src('./now/app.mjs')
+                    .pipe(taskNowCopy[functionHandler](obj,'gitHub', callback))
+                    .pipe(gulp.dest('./now'));
+            });
+            gulp.task('default', gulp.series('clean:now',gulp.parallel('copy:favicon:now','copy:now','copy:ingore:now')));
+            gulp.task('watch', function (callback) {
 
+                gulp.watch('./src/now/**/*.*', gulp.series("copy:now"))
+                // gulp.watch('./src/html/components/owl-menu/light/**/*.*' , gulp.series("styles:light"))
+                // gulp.watch('./src/html/components/owl-menu/owl-menu.html', gulp.series('html:component'))
+                callback()
 
-
-
-            gulp.task('reconect:now', function () {
 
             });
-            gulp.task('connect:now', function () {
-                    //1. run your script as a server
-                    // var server = gls.new('myapp.js');
-                    // server.start();
-                    //2. run script with cwd args, e.g. the harmony flag
-                    var server = gls.new(['--experimental-modules', 'now/app.mjs']);
+            // gulp.parallel('connect:now','watch')
+            gulp.task('dev', gulp.series('default'))
 
-
-                     server.start();
-                    // server = gls.static('static', 8003);
-                    //this will achieve `node --harmony myapp.js`
-                    //you can access cwd args in `myapp.js` via `process.argv`
-
-
-                    //use gulp.watch to trigger server actions(notify, start or stop)
-                    // gulp.watch(['static/**/*.css', 'static/**/*.html'], function (file) {
-                    //     server.notify.apply(server, [file]);
-                    // });
-                    // gulp.watch('/src/now/app.mjs', server.stop()); //restart my server
-
-                    // Note: try wrapping in a function if getting an error like `TypeError: Bad argument at TypeError (native) at ChildProcess.spawn`
-                    // gulp.watch('src/now/app.mjs', function() {
-                    //     server.start.bind(server)()
-                    // });
-            });
-            // gulp.task('connect:now', function () {
-            //     return  connect.server({
-            //         name: 'now',
-            //         root: 'now',
-            //         port: 8003,
-            //         livereload: true
-            //     });
-            // });
-            gulp.task('default', gulp.series('clean:now',gulp.parallel('copy:favicon:now','copy:now')));
-
-            // gulp.task('watch', function () {
-            //     gulp.watch('./src/now/**/*.*', gulp.series('reload'))
-
-                // gulp.watch('./src/html/components/owl-menu/shadow/**/*.*', gulp.series("styles:shadow"))
-            // gulp.watch('./src/html/components/owl-menu/light/**/*.*' , gulp.series("styles:light"))
-            // gulp.watch('./src/html/components/owl-menu/owl-menu.html', gulp.series('html:component'))
-            // });
-
-            // gulp.task('reload', gulp.series('copy:now','reconect:now'));
-
-            gulp.task('dev', gulp.series('default',gulp.parallel('connect:now')))
+            gulp.task('deploy:now', gulp.series('default', 'replace:js:now:deploy', 'deploy-start:now'))
 
         }
     }else{
@@ -628,12 +614,67 @@ if(obj['host']['GitHub'] === false){
                 gulp.watch('./src/html/components/owl-menu/shadow/**/*.*', gulp.series("styles:shadow"))
                 gulp.watch('./src/html/components/owl-menu/light/**/*.*' , gulp.series("styles:light"))
                 gulp.watch('./src/html/components/owl-menu/owl-menu.html', gulp.series('html:component'))
+
             });
 
             gulp.task('dev', gulp.series('default', 'watch'))
+        }else{
+
+            gulp.task("clean:now", function () {
+                return del('./now')
+            });
+            gulp.task('copy:now', function () {
+                return  gulp.src('./src/now/**/*.*')
+                    .pipe(gulp.dest('./now'));
+            });
+            gulp.task('copy:ingore:now', function () {
+                return  gulp.src('./src/now/.nowignore')
+                    .pipe(gulp.dest('./now'));
+            });
+            gulp.task('copy:favicon:now', function () {
+                return  gulp.src('./src/favicon.ico')
+                    .pipe(gulp.dest('./now/static'));
+            });
+            gulp.task('connect:now', function (cb) {
+                exec('cd now && nodemon --experimental-modules server.mjs && cd ..', function (err, stdout, stderr) {
+                    console.log(stdout);
+                    console.log(stderr);
+                    cb(err);
+                });
+            });
+            gulp.task('deploy-start:now', function (cb) {
+                exec('cd now && now && cd ..', function (err, stdout, stderr) {
+                    console.log(stdout);
+                    console.log(stderr);
+                    cb(err);
+                });
+            });
+            gulp.task('replace:js:now:deploy', function () {
+                return  gulp.src('./now/app.mjs')
+                    .pipe(taskNowCopy[functionHandler](obj,'gitHub', callback))
+                    .pipe(gulp.dest('./now'));
+            });
+            gulp.task('default', gulp.series('clean','clean:webpack','webpack','copy:secure-webpack','copy:component-webpack',"styles:shadow-webpack","styles:light-webpack", gulp.parallel('copy:CNAME','styles:light',"styles:html-shadow-webpack","styles:html-light-webpack",'copy:favicon','html:component','html:inject','html:external','copy:image','copy:js','copy:manifest','copy:16x16','copy:48x48','copy:128x128','copy:192x192','copy:512x512','copy:manifest-webpack','copy:16x16-webpack','copy:48x48-webpack','copy:128x128-webpack','copy:192x192-webpack','copy:512x512-webpack','inject:manifest-webpack','inject:manifest-webpack',  "clean:scss-shadow-webpack", "clean:scss-light-webpack",'connect-webpack','connect-gitHub','copy:favicon:now','copy:now','copy:ingore:now')));
+            gulp.task('watch', function (callback) {
+
+                gulp.watch('./src/now/**/*.*', gulp.series("copy:now"))
+                gulp.watch('./src/html/components/owl-menu/shadow/**/*.*', gulp.series("styles:shadow"))
+                gulp.watch('./src/html/components/owl-menu/light/**/*.*' , gulp.series("styles:light"))
+                gulp.watch('./src/html/components/owl-menu/owl-menu.html', gulp.series('html:component'))
+                callback()
+
+
+            });
+            // gulp.parallel('connect:now','watch')
+            gulp.task('dev', gulp.series('default'))
+
+            gulp.task('deploy:now', gulp.series('default', 'replace:js:now:deploy', 'deploy-start:now'))
+
+
+
+
+
         }
-
-
     }
 }
 
